@@ -13,6 +13,8 @@ const { logger, logError, logSecurityEvent } = require('./utils/logger')
 const { uploadFileToBlockchain, downloadFileFromBlockchain } = require('./index')
 const { getFileRegistryAddress } = require('./config/deploymentInfo')
 const { getRuntimeConfig } = require('./config/runtimeConfig')
+const { setFilenameMetadata, getFilenameMetadata } = require('./utils/fileMetadata')
+const { detectFileType, sanitizeFilename } = require('./utils/fileType')
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -121,6 +123,13 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       contractAddress
     )
 
+    // Store filename and MIME type metadata for download
+    if (result.fileHash) {
+      const originalFilename = req.file.originalname || 'uploaded-file'
+      const mimeType = req.file.mimetype || 'application/octet-stream'
+      setFilenameMetadata(result.fileHash, originalFilename, mimeType, req.file.size)
+    }
+
     fs.unlinkSync(tempFilePath)
 
     const duration = Date.now() - startTime
@@ -188,18 +197,41 @@ app.post('/api/download', async (req, res) => {
     const fileBuffer = fs.readFileSync(outputPath)
     fs.unlinkSync(outputPath)
 
+    // Get filename and MIME type metadata
+    let filename = `downloaded-${trimmedHash.substring(0, 8)}.bin`
+    let mimeType = 'application/octet-stream'
+
+    const metadata = getFilenameMetadata(trimmedHash)
+    if (metadata && metadata.filename) {
+      filename = metadata.filename
+      mimeType = metadata.mimeType || 'application/octet-stream'
+    } else {
+      // Fallback: detect file type from buffer content
+      const detected = detectFileType(fileBuffer)
+      mimeType = detected.mimeType
+      // Only use detected extension if we don't have stored filename
+      if (!metadata) {
+        filename = `downloaded-${trimmedHash.substring(0, 8)}${detected.extension}`
+      }
+    }
+
+    // Sanitize filename for safe use in headers
+    const sanitizedFilename = sanitizeFilename(filename)
+
     const duration = Date.now() - startTime
     logger.info('PORTAL_DOWNLOAD_SUCCESS', {
       event: 'PORTAL_DOWNLOAD_SUCCESS',
       actor: 'receiver',
       fileHash: trimmedHash ? `${trimmedHash.substring(0, 8)}...` : 'unknown',
       fileSize: fileBuffer.length,
+      filename: sanitizedFilename,
+      mimeType,
       timestamp: new Date().toISOString(),
       duration
     })
 
-    res.setHeader('Content-Type', 'application/octet-stream')
-    res.setHeader('Content-Disposition', `attachment; filename="downloaded-${trimmedHash.substring(0, 8)}.bin"`)
+    res.setHeader('Content-Type', mimeType)
+    res.setHeader('Content-Disposition', `attachment; filename="${sanitizedFilename}"`)
     res.send(fileBuffer)
   } catch (error) {
     const duration = Date.now() - startTime
