@@ -348,9 +348,36 @@ async function uploadFileToBlockchain(filePath, privateKey, contractAddress, rec
     secureZero(symmetricKey)
     symmetricKey = null
 
-    // Set up account
+    // Set up account and configure web3 to use it for signing
     const account = web3.eth.accounts.privateKeyToAccount(privateKey)
+    
+    // Add account to wallet - this enables automatic signing for transactions
     web3.eth.accounts.wallet.add(account)
+    
+    // Set default account for convenience (web3.js v4 may use this)
+    web3.eth.defaultAccount = account.address
+
+    // Verify account has funds (debug log for local dev)
+    if (process.env.DECENTRAFILE_NETWORK === 'local' || !process.env.DECENTRAFILE_NETWORK) {
+      try {
+        const balance = await web3.eth.getBalance(account.address)
+        const network = await web3.eth.getChainId()
+        logger.info('UPLOAD_ACCOUNT_BALANCE_CHECK', {
+          address: account.address,
+          balance: web3.utils.fromWei(balance, 'ether'),
+          network: runtimeConfig.networkName,
+          chainId: network.toString()
+        })
+        
+        // If balance is zero, this is a critical error
+        if (balance === BigInt(0)) {
+          throw new Error(`Account ${account.address} has zero balance. Cannot send transaction.`)
+        }
+      } catch (balanceError) {
+        logger.error('Account balance check failed', { error: balanceError.message })
+        throw balanceError
+      }
+    }
 
     // Get contract instance
     const contract = new web3.eth.Contract(FileRegistryABI, contractAddress)
@@ -358,6 +385,13 @@ async function uploadFileToBlockchain(filePath, privateKey, contractAddress, rec
     // Upload metadata to blockchain
     // Convert Buffer to hex string for web3.js v4 (requires 0x prefix for bytes parameter)
     const wrappedKeyHex = '0x' + wrappedKey.toString('hex')
+
+    // Verify account is in wallet (web3.js v4 requires account to be in wallet for auto-signing)
+    const walletAccount = web3.eth.accounts.wallet.get(account.address)
+    if (!walletAccount || walletAccount.address.toLowerCase() !== account.address.toLowerCase()) {
+      throw new Error(`Account ${account.address} not found in web3 wallet. Cannot sign transaction.`)
+    }
+
     const tx = await contract.methods.uploadFile(fileHash, wrappedKeyHex).send({
       from: account.address,
       gas: 500000
