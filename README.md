@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/decentrafile-logo-neon-city-circle.png" alt="DecentraFile logo" width="200">
+</p>
+
 # DecentraFile
 
 [![CI](https://github.com/codethor0/DecentraFile/actions/workflows/ci.yml/badge.svg)](https://github.com/codethor0/DecentraFile/actions/workflows/ci.yml)
