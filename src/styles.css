@@ -1,0 +1,257 @@
+:root {
+  --df-bg: #050607;
+  --df-bg-elevated: #101214;
+  --df-accent: #31ff7a;
+  --df-accent-soft: #1b3f2b;
+  --df-border: #2b2f36;
+  --df-text: #f5f7fa;
+  --df-text-muted: #a0a4b1;
+  --df-error: #ff4d4f;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #0b1218 0, #050607 55%, #000000 100%);
+  color: var(--df-text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.df-shell {
+  width: 100%;
+  max-width: 960px;
+  margin: 24px;
+  padding: 24px 28px;
+  background: rgba(5, 6, 7, 0.96);
+  border-radius: 18px;
+  border: 1px solid var(--df-border);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+}
+
+.df-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--df-border);
+  padding-bottom: 16px;
+}
+
+.df-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+}
+
+.df-title {
+  font-size: 1.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--df-accent);
+  margin: 0;
+}
+
+.df-subtitle {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: var(--df-text-muted);
+}
+
+.df-main {
+  margin-top: 16px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--df-text-muted);
+}
+
+input[type="file"],
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--df-border);
+  background-color: var(--df-bg-elevated);
+  color: var(--df-text);
+  font-size: 0.95rem;
+}
+
+input[type="file"]::file-selector-button {
+  border: none;
+  background: var(--df-accent-soft);
+  color: var(--df-accent);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--df-accent);
+  background: linear-gradient(135deg, var(--df-accent-soft), #0c1510);
+  color: var(--df-accent);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.df-status {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--df-text-muted);
+  word-break: break-word;
+}
+
+.df-status--error {
+  color: var(--df-error);
+}
+
+.status {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  display: none;
+}
+
+.status.show {
+  display: block;
+}
+
+.status.success {
+  background: rgba(49, 255, 122, 0.1);
+  color: var(--df-accent);
+  border: 1px solid var(--df-accent-soft);
+}
+
+.status.error {
+  background: rgba(255, 77, 79, 0.1);
+  color: var(--df-error);
+  border: 1px solid var(--df-error);
+}
+
+.status.info {
+  background: rgba(160, 164, 177, 0.1);
+  color: var(--df-text-muted);
+  border: 1px solid var(--df-border);
+}
+
+.upload-area {
+  border: 2px dashed var(--df-border);
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: var(--df-bg-elevated);
+}
+
+.upload-area:hover {
+  border-color: var(--df-accent);
+  background: rgba(49, 255, 122, 0.05);
+}
+
+.upload-area.dragover {
+  border-color: var(--df-accent);
+  background: rgba(49, 255, 122, 0.1);
+}
+
+.file-info {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--df-bg-elevated);
+  border-radius: 10px;
+  display: none;
+  color: var(--df-text);
+}
+
+.file-info.show {
+  display: block;
+}
+
+.file-metadata {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--df-bg-elevated);
+  border-radius: 10px;
+  display: none;
+  color: var(--df-text);
+}
+
+.file-metadata.show {
+  display: block;
+}
+
+.file-metadata p {
+  margin: 5px 0;
+  color: var(--df-text);
+}
+
+.nav {
+  margin-bottom: 30px;
+}
+
+.nav a {
+  color: var(--df-accent);
+  text-decoration: none;
+  margin-right: 20px;
+  font-weight: 500;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(49, 255, 122, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--df-accent);
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.file-label {
+  display: block;
+  color: var(--df-accent);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#fileInput {
+  display: none;
+}

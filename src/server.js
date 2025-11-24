@@ -43,6 +43,7 @@ const upload = multer({
 
 app.use(express.json())
 app.use(express.static(path.join(__dirname)))
+app.use('/assets', express.static(path.join(__dirname, '../assets')))
 
 app.get('/', (req, res) => {
   res.redirect('/upload.html')
