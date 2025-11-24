@@ -1,5 +1,7 @@
 # DecentraFile
 
+[![CI](https://github.com/codethor0/DecentraFile/actions/workflows/ci.yml/badge.svg)](https://github.com/codethor0/DecentraFile/actions/workflows/ci.yml)
+
 A free, secure, decentralized file transfer protocol using blockchain and IPFS. DecentraFile enables users to upload, store, and share files in a decentralized manner while maintaining privacy and security through encryption.
 
 ## Features

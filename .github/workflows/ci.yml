@@ -53,8 +53,8 @@ jobs:
         run: npm run test:integration
         continue-on-error: false
       
-      - name: Run validation tests
-        run: npm test -- --grep "Validation"
+      - name: Run all tests
+        run: npm test
         continue-on-error: false
       
       - name: Generate coverage report
