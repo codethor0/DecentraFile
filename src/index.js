@@ -350,10 +350,10 @@ async function uploadFileToBlockchain(filePath, privateKey, contractAddress, rec
 
     // Set up account and configure web3 to use it for signing
     const account = web3.eth.accounts.privateKeyToAccount(privateKey)
-    
+
     // Add account to wallet - this enables automatic signing for transactions
     web3.eth.accounts.wallet.add(account)
-    
+
     // Set default account for convenience (web3.js v4 may use this)
     web3.eth.defaultAccount = account.address
 
