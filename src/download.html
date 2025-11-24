@@ -89,7 +89,7 @@
                 document.body.removeChild(a);
 
                 fileMetadata.innerHTML = `
-                    <p><strong>File Hash:</strong> ${fileHash.substring(0, 16)}...</p>
+                    <p><strong>File Hash:</strong> <code style="word-break: break-all; font-size: 0.9em; background: rgba(49, 255, 122, 0.1); padding: 4px 8px; border-radius: 4px;">${fileHash}</code></p>
                     <p><strong>Status:</strong> Downloaded</p>
                 `;
                 fileMetadata.classList.add('show');
