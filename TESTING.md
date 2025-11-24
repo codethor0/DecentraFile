@@ -28,6 +28,8 @@ npm run docker:e2e
 - Upload: http://localhost:3000/upload.html
 - Download: http://localhost:3000/download.html
 
+Note: Downloads preserve original filenames and extensions (e.g., .jpg, .pdf, .zip).
+
 5. Stop the stack:
 ```bash
 npm run docker:down
