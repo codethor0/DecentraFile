@@ -90,20 +90,27 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     // In production, use environment variable: process.env.PRIVATE_KEY
     const senderPrivateKey = process.env.PRIVATE_KEY || '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 
-    // Debug: Verify account balance for local dev
-    if (process.env.DECENTRAFILE_NETWORK === 'local' || !process.env.DECENTRAFILE_NETWORK) {
+    // Verify account balance for local dev (one-time check per request)
+    const runtimeConfig = getRuntimeConfig()
+    if (runtimeConfig.networkName === 'local') {
       try {
         const { ethers: ethersLib } = require('hardhat')
-        const provider = new ethersLib.JsonRpcProvider(process.env.RPC_URL || 'http://hardhat:8545')
+        const provider = new ethersLib.JsonRpcProvider(runtimeConfig.rpcUrl)
         const wallet = new ethersLib.Wallet(senderPrivateKey, provider)
         const balance = await provider.getBalance(wallet.address)
         logger.info('PORTAL_UPLOAD_ACCOUNT_CHECK', {
           address: wallet.address,
           balance: ethersLib.formatEther(balance),
-          network: process.env.DECENTRAFILE_NETWORK || 'local'
+          network: runtimeConfig.networkName,
+          chainId: runtimeConfig.chainId
         })
+        // Fail fast if balance is zero
+        if (balance === BigInt(0)) {
+          throw new Error(`Account ${wallet.address} has zero balance. Cannot send transaction.`)
+        }
       } catch (balanceError) {
-        logger.warn('Could not check account balance', { error: balanceError.message })
+        logger.error('Account balance check failed', { error: balanceError.message })
+        throw balanceError
       }
     }
 
