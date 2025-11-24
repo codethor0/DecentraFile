@@ -4,6 +4,7 @@
   "description": "A free, secure, decentralized file transfer protocol using blockchain and IPFS",
   "main": "src/index.js",
   "scripts": {
+    "build": "hardhat compile",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "test:unit": "hardhat test test/FileRegistry.test.js test/crypto.test.js",
