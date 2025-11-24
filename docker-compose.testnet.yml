@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    container_name: decentrafile-app-testnet
+    environment:
+      - DECENTRAFILE_NETWORK=testnet
+      - DECENTRAFILE_STORAGE=ipfs
+      - RPC_URL=${RPC_URL}
+      - CHAIN_ID=${CHAIN_ID}
+      - IPFS_ENDPOINT=${IPFS_ENDPOINT}
+      - IPFS_AUTH=${IPFS_AUTH}
+      - IPFS_MAPPING_FILE=/app/data/ipfs-mapping.json
+      - LOG_LEVEL=info
+      - NODE_ENV=production
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./deployments:/app/deployments
+    restart: unless-stopped
+

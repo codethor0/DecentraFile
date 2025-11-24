@@ -1,0 +1,38 @@
+services:
+  hardhat:
+    image: node:20-alpine
+    container_name: decentrafile-hardhat
+    working_dir: /app
+    command: sh -c "apk add --no-cache curl && npm install -g hardhat && npx hardhat node --hostname 0.0.0.0"
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build: .
+    container_name: decentrafile-app
+    depends_on:
+      hardhat:
+        condition: service_healthy
+    environment:
+      - DECENTRAFILE_NETWORK=local
+      - DECENTRAFILE_STORAGE=mock
+      - RPC_URL=http://hardhat:8545
+      - IPFS_MAPPING_FILE=/app/data/ipfs-mapping.json
+      - LOG_LEVEL=info
+      - NODE_ENV=development
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+

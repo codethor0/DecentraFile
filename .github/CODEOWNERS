@@ -1,0 +1,20 @@
+# Code owners for DecentraFile
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @codethor0
+
+# Smart contracts require security review
+/contracts/ @codethor0
+
+# Security-related files
+SECURITY.md @codethor0
+.github/workflows/ @codethor0
+scripts/security-audit.js @codethor0
+
+# Configuration files
+package.json @codethor0
+hardhat.config.js @codethor0
+.eslintrc.js @codethor0
+.solhint.json @codethor0
+

@@ -1,0 +1,50 @@
+name: Security Audit
+
+on:
+  schedule:
+    # Run weekly on Mondays at 00:00 UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+      
+      - name: Run security audit script
+        run: npm run security:audit
+        continue-on-error: true
+      
+      - name: Check for known vulnerabilities
+        run: |
+          npm audit --json > audit.json || true
+          if [ -s audit.json ]; then
+            echo "Vulnerabilities found. Review audit.json for details."
+            cat audit.json
+          else
+            echo "No vulnerabilities found."
+          fi
+      
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit-results
+          path: audit.json
+          retention-days: 30
+

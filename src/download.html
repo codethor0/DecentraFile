@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DecentraFile - Download</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .nav {
+            margin-bottom: 30px;
+        }
+
+        .nav a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        .file-metadata {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .file-metadata.show {
+            display: block;
+        }
+
+        .file-metadata p {
+            margin: 5px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="upload.html">Upload</a>
+            <a href="download.html">Download</a>
+        </div>
+        
+        <h1>Download File</h1>
+        <p class="subtitle">Retrieve files from the decentralized network</p>
+
+        <div class="input-group">
+            <label for="fileHashInput">File Hash (IPFS CID or Blockchain Hash)</label>
+            <input 
+                type="text" 
+                id="fileHashInput" 
+                placeholder="Enter file hash (e.g., QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco)"
+                autocomplete="off"
+            />
+        </div>
+
+        <button id="downloadBtn" onclick="downloadFile()">Download File</button>
+
+        <div class="file-metadata" id="fileMetadata"></div>
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const fileHashInput = document.getElementById('fileHashInput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const status = document.getElementById('status');
+        const fileMetadata = document.getElementById('fileMetadata');
+
+        fileHashInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                downloadFile();
+            }
+        });
+
+        async function downloadFile() {
+            const fileHash = fileHashInput.value.trim();
+            
+            if (!fileHash) {
+                showStatus('Please enter a file hash', 'error');
+                return;
+            }
+
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<span class="loading"></span>Downloading...';
+            showStatus('Fetching file metadata from blockchain...', 'info');
+            fileMetadata.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fileHash })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Download failed');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `downloaded-${fileHash.substring(0, 8)}.bin`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                fileMetadata.innerHTML = `
+                    <p><strong>File Hash:</strong> ${fileHash.substring(0, 16)}...</p>
+                    <p><strong>Status:</strong> Downloaded</p>
+                `;
+                fileMetadata.classList.add('show');
+                showStatus('File downloaded successfully!', 'success');
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = 'Download File';
+
+            } catch (error) {
+                showStatus('Error downloading file: ' + error.message, 'error');
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = 'Download File';
+            }
+        }
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status show ${type}`;
+        }
+    </script>
+</body>
+</html>
+
