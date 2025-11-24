@@ -19,7 +19,7 @@ Please do not report security vulnerabilities through public GitHub issues.
 
 ### 2. Email Security Team
 
-Send an email to: [security@decentrafile.io] (or create a private security advisory on GitHub)
+Send an email to: codethor@gmail.com (or create a private security advisory on GitHub)
 
 Include the following information:
 - Type of vulnerability

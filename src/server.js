@@ -94,13 +94,13 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     // Debug: Verify account balance for local dev
     if (process.env.DECENTRAFILE_NETWORK === 'local' || !process.env.DECENTRAFILE_NETWORK) {
       try {
-        const { ethers } = require('hardhat')
-        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || 'http://hardhat:8545')
-        const wallet = new ethers.Wallet(senderPrivateKey, provider)
+        const { ethers: ethersLib } = require('hardhat')
+        const provider = new ethersLib.JsonRpcProvider(process.env.RPC_URL || 'http://hardhat:8545')
+        const wallet = new ethersLib.Wallet(senderPrivateKey, provider)
         const balance = await provider.getBalance(wallet.address)
         logger.info('PORTAL_UPLOAD_ACCOUNT_CHECK', {
           address: wallet.address,
-          balance: ethers.formatEther(balance),
+          balance: ethersLib.formatEther(balance),
           network: process.env.DECENTRAFILE_NETWORK || 'local'
         })
       } catch (balanceError) {
