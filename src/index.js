@@ -368,7 +368,7 @@ async function uploadFileToBlockchain(filePath, privateKey, contractAddress, rec
           network: runtimeConfig.networkName,
           chainId: network.toString()
         })
-        
+
         // If balance is zero, this is a critical error
         if (balance === BigInt(0)) {
           throw new Error(`Account ${account.address} has zero balance. Cannot send transaction.`)
