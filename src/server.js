@@ -87,9 +87,26 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     const tempFilePath = path.join(tempDir, `upload-${Date.now()}-${req.file.originalname}`)
     fs.writeFileSync(tempFilePath, req.file.buffer)
 
-    // Generate a random private key for demo purposes (in production, use authenticated user's key)
-    const senderWallet = ethers.Wallet.createRandom()
-    const senderPrivateKey = senderWallet.privateKey
+    // Use Hardhat default account #0 private key for local testing (well-known, safe for local dev only)
+    // In production, use environment variable: process.env.PRIVATE_KEY
+    const senderPrivateKey = process.env.PRIVATE_KEY || '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+
+    // Debug: Verify account balance for local dev
+    if (process.env.DECENTRAFILE_NETWORK === 'local' || !process.env.DECENTRAFILE_NETWORK) {
+      try {
+        const { ethers } = require('hardhat')
+        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || 'http://hardhat:8545')
+        const wallet = new ethers.Wallet(senderPrivateKey, provider)
+        const balance = await provider.getBalance(wallet.address)
+        logger.info('PORTAL_UPLOAD_ACCOUNT_CHECK', {
+          address: wallet.address,
+          balance: ethers.formatEther(balance),
+          network: process.env.DECENTRAFILE_NETWORK || 'local'
+        })
+      } catch (balanceError) {
+        logger.warn('Could not check account balance', { error: balanceError.message })
+      }
+    }
 
     const result = await uploadFileToBlockchain(
       tempFilePath,
