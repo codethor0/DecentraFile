@@ -10,7 +10,7 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 
 ## Critical Bugs Found and Fixed
 
-### BUG-1: Missing Key Zeroing in Error Paths (CRITICAL) ✅ FIXED
+### BUG-1: Missing Key Zeroing in Error Paths (CRITICAL) PASS FIXED
 
 **Location**: `src/index.js:277-290, 323-325`
 
@@ -30,7 +30,7 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 
 **Files Modified**: `src/index.js`
 
-### BUG-2: Documentation Inconsistency - Atomic Writes (MEDIUM) ✅ FIXED
+### BUG-2: Documentation Inconsistency - Atomic Writes (MEDIUM) PASS FIXED
 
 **Location**: `FORMAL_AUDIT_FINDINGS.md`
 
@@ -44,7 +44,7 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 
 **Files Modified**: `FORMAL_AUDIT_FINDINGS.md`
 
-### BUG-3: Documentation Inconsistency - Error Handling (LOW) ✅ FIXED
+### BUG-3: Documentation Inconsistency - Error Handling (LOW) PASS FIXED
 
 **Location**: `FORMAL_AUDIT_FINDINGS.md`
 
@@ -58,7 +58,7 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 
 **Files Modified**: `FORMAL_AUDIT_FINDINGS.md`
 
-### BUG-4: Race Condition in Concurrent Mapping Updates (MEDIUM) ✅ MITIGATED
+### BUG-4: Race Condition in Concurrent Mapping Updates (MEDIUM) PASS MITIGATED
 
 **Location**: `src/index.js:118-142`
 
@@ -78,7 +78,7 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 
 **Files Modified**: `src/index.js`, `FORMAL_AUDIT_FINDINGS.md`
 
-### BUG-5: Documentation Inconsistency - Zero fileHash (LOW) ✅ RESOLVED
+### BUG-5: Documentation Inconsistency - Zero fileHash (LOW) PASS RESOLVED
 
 **Location**: `FORMAL_AUDIT_FINDINGS.md`
 
@@ -94,7 +94,7 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 
 ## Invariants Added
 
-### I5: No Partial State ✅ ADDED
+### I5: No Partial State PASS ADDED
 
 **Definition**: After any successful upload, all related mappings/arrays reflect the same fileHash/owner/encryptedKey.
 
@@ -102,7 +102,7 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 - Verifies all state is consistent after upload
 - Verifies fileHash appears in userFiles if and only if file exists
 
-### I6: No Silent Overwrites ✅ ADDED
+### I6: No Silent Overwrites PASS ADDED
 
 **Definition**: Cannot overwrite existing files, even with same key or different user.
 
@@ -111,7 +111,7 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 - Cannot overwrite even with same key
 - Different users cannot overwrite each other's files
 
-### I7: Custom Errors Exhaustive ✅ ADDED
+### I7: Custom Errors Exhaustive PASS ADDED
 
 **Definition**: All invalid inputs/overflows/unauthorized access use custom errors consistently.
 
@@ -126,26 +126,26 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 
 ## Verification Results
 
-### Type Consistency ✅ VERIFIED
+### Type Consistency PASS VERIFIED
 
 - `web3.utils.keccak256()` and `ethers.keccak256()` produce identical results
 - Hex string conversions consistent throughout (handles both 0x-prefixed and non-prefixed)
 - Buffer ↔ hex conversions use `.toString('hex')` and `Buffer.from(..., 'hex')` consistently
 
-### Crypto Error Messages ✅ VERIFIED
+### Crypto Error Messages PASS VERIFIED
 
 - Generic error messages prevent information leakage
 - Wrong key vs corrupted data errors are similarly generic
 - Validation errors occur before crypto operations (less sensitive)
 
-### Key Zeroing ✅ VERIFIED
+### Key Zeroing PASS VERIFIED
 
 - All 15 error paths after key generation properly zero keys
 - Upload function: 6 error paths verified
 - Download function: 9 error paths verified
 - Outer catch blocks ensure cleanup
 
-### IPFS Mapping ✅ VERIFIED
+### IPFS Mapping PASS VERIFIED
 
 - Atomic write pattern implemented correctly
 - Error handling and backup mechanism present
@@ -186,11 +186,11 @@ A comprehensive paranoid re-validation audit was conducted on DecentraFile, trea
 
 ## Recommendations
 
-1. ✅ **Key zeroing fixed** - All error paths now properly zero keys
-2. ✅ **Invariants strengthened** - I5-I7 added with comprehensive tests
-3. ✅ **Documentation corrected** - All inconsistencies resolved
-4. ⚠️ **Race condition** - Consider file locking for production multi-process deployments
-5. ⚠️ **Plaintext key storage** - Remove before production deployment
+1. PASS **Key zeroing fixed** - All error paths now properly zero keys
+2. PASS **Invariants strengthened** - I5-I7 added with comprehensive tests
+3. PASS **Documentation corrected** - All inconsistencies resolved
+4. WARNING **Race condition** - Consider file locking for production multi-process deployments
+5. WARNING **Plaintext key storage** - Remove before production deployment
 
 ## Summary
 
