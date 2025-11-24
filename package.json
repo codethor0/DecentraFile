@@ -44,7 +44,7 @@
   "author": "codethor0",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "ipfs-http-client": "^60.0.1",
     "joi": "^17.11.0",
     "multer": "^1.4.5-lts.1",
