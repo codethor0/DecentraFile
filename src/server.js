@@ -12,7 +12,6 @@ const fs = require('fs')
 const { logger, logError, logSecurityEvent } = require('./utils/logger')
 const { uploadFileToBlockchain, downloadFileFromBlockchain } = require('./index')
 const { getFileRegistryAddress } = require('./config/deploymentInfo')
-const { ethers } = require('hardhat')
 
 const app = express()
 const PORT = process.env.PORT || 3000
