@@ -101,9 +101,21 @@
                     throw new Error(result.error || 'Upload failed');
                 }
 
-                showStatus('File uploaded successfully! File Hash: ' + result.fileHash.substring(0, 16) + '...', 'success');
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = 'Upload File';
+                // Show full hash for copying (users need it to download)
+                const fullHash = result.fileHash || 'unknown'
+                showStatus('File uploaded successfully! File Hash: ' + fullHash, 'success')
+                
+                // Also display hash in a copyable format
+                const hashDisplay = document.createElement('div')
+                hashDisplay.className = 'hash-display'
+                hashDisplay.innerHTML = `
+                    <strong>File Hash (copy this to download):</strong><br>
+                    <code style="word-break: break-all; font-size: 0.9em; background: rgba(49, 255, 122, 0.1); padding: 8px; border-radius: 4px; display: block; margin-top: 8px;">${fullHash}</code>
+                `
+                status.appendChild(hashDisplay)
+                
+                uploadBtn.disabled = false
+                uploadBtn.innerHTML = 'Upload File'
 
             } catch (error) {
                 showStatus('Error uploading file: ' + error.message, 'error');
