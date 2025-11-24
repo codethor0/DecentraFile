@@ -168,21 +168,21 @@ app.post('/api/download', async (req, res) => {
     logger.info('PORTAL_DOWNLOAD_SUCCESS', {
       event: 'PORTAL_DOWNLOAD_SUCCESS',
       actor: 'receiver',
-      fileHash: fileHash ? `${fileHash.substring(0, 8)}...` : 'unknown',
+      fileHash: trimmedHash ? `${trimmedHash.substring(0, 8)}...` : 'unknown',
       fileSize: fileBuffer.length,
       timestamp: new Date().toISOString(),
       duration
     })
 
     res.setHeader('Content-Type', 'application/octet-stream')
-    res.setHeader('Content-Disposition', `attachment; filename="downloaded-${fileHash.substring(0, 8)}.bin"`)
+    res.setHeader('Content-Disposition', `attachment; filename="downloaded-${trimmedHash.substring(0, 8)}.bin"`)
     res.send(fileBuffer)
   } catch (error) {
     const duration = Date.now() - startTime
     logger.error('PORTAL_DOWNLOAD_FAILURE', {
       event: 'PORTAL_DOWNLOAD_FAILURE',
       actor: 'receiver',
-      fileHash: fileHash ? `${fileHash.substring(0, 8)}...` : 'unknown',
+      fileHash: trimmedHash ? `${trimmedHash.substring(0, 8)}...` : 'unknown',
       error: error.message,
       timestamp: new Date().toISOString(),
       duration
