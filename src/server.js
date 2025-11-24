@@ -72,6 +72,11 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'No file provided' })
     }
 
+    if (req.file.size === 0) {
+      logSecurityEvent('INVALID_INPUT', { operation: 'upload', error: 'Empty file not allowed' })
+      return res.status(400).json({ error: 'Empty file not allowed' })
+    }
+
     const contractAddress = getContractAddress()
 
     const tempDir = path.join(__dirname, '../data/temp')
@@ -128,15 +133,16 @@ app.post('/api/download', async (req, res) => {
   const startTime = Date.now()
   const { fileHash } = req.body
 
+  const trimmedHash = fileHash ? fileHash.trim() : null
   logger.info('PORTAL_DOWNLOAD_STARTED', {
     event: 'PORTAL_DOWNLOAD_STARTED',
     actor: 'receiver',
-    fileHash: fileHash ? `${fileHash.substring(0, 8)}...` : 'unknown',
+    fileHash: trimmedHash ? `${trimmedHash.substring(0, 8)}...` : 'unknown',
     timestamp: new Date().toISOString()
   })
 
   try {
-    if (!fileHash) {
+    if (!trimmedHash || trimmedHash.length === 0) {
       logSecurityEvent('INVALID_INPUT', { operation: 'download', error: 'No fileHash provided' })
       return res.status(400).json({ error: 'No fileHash provided' })
     }
@@ -150,7 +156,7 @@ app.post('/api/download', async (req, res) => {
     const outputPath = path.join(tempDir, `download-${Date.now()}.bin`)
 
     await downloadFileFromBlockchain(
-      fileHash,
+      trimmedHash,
       contractAddress,
       outputPath
     )
