@@ -78,11 +78,21 @@
                     throw new Error(error.error || 'Download failed');
                 }
 
+                // Extract filename from Content-Disposition header if available
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let downloadFilename = `downloaded-${fileHash.substring(0, 8)}.bin`;
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                    if (filenameMatch && filenameMatch[1]) {
+                        downloadFilename = filenameMatch[1];
+                    }
+                }
+
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `downloaded-${fileHash.substring(0, 8)}.bin`;
+                a.download = downloadFilename;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
