@@ -45,6 +45,10 @@ function isTextFile(filePath) {
   if (filePath.endsWith('.lock') || filePath.endsWith('.log')) {
     return false
   }
+  // Skip the hygiene check script itself (it contains the keywords it checks for)
+  if (filePath === 'scripts/hygiene-check.js') {
+    return false
+  }
   return !isBinaryFile(filePath)
 }
 
