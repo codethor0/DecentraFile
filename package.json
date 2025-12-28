@@ -19,6 +19,7 @@
     "lint:fix": "eslint 'src/**/*.js' 'scripts/**/*.js' 'test/**/*.js' --fix",
     "security:audit": "node scripts/security-audit.js",
     "security:slither": "echo 'Install Slither for advanced analysis: pip install slither-analyzer'",
+    "hygiene:check": "node scripts/hygiene-check.js",
     "deploy": "hardhat run scripts/deploy.js",
     "deploy:local": "hardhat run scripts/deploy-local.js --network hardhat",
     "deploy:testnet": "DECENTRAFILE_NETWORK=testnet hardhat run scripts/deploy-testnet.js",
