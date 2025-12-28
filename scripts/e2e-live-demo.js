@@ -8,7 +8,6 @@
 const fs = require("fs");
 const path = require("path");
 const { logger } = require("../src/utils/logger");
-const { downloadFileFromBlockchain } = require("../src/index");
 const { getFileRegistryAddress } = require("../src/config/deploymentInfo");
 const { getRuntimeConfig } = require("../src/config/runtimeConfig");
 const { ethers } = require("ethers");
@@ -18,7 +17,6 @@ const {
     encryptFile,
     secureZero
 } = require("../src/crypto/crypto");
-const { generateFileHash } = require("../test/utils/test-helpers");
 
 // Get contract address from deployment artifact
 let CONTRACT_ADDRESS;
@@ -52,12 +50,12 @@ async function runE2EDemo() {
         // Get runtime config
         const config = getRuntimeConfig();
         const rpcUrl = config.rpcUrl || "http://localhost:8545";
-        
+
         // Create provider and wallet using ethers (matching integration tests)
         const provider = new ethers.JsonRpcProvider(rpcUrl);
         const senderPrivateKey = process.env.PRIVATE_KEY || "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
         const wallet = new ethers.Wallet(senderPrivateKey, provider);
-        
+
         // Get network info
         const network = await provider.getNetwork();
         const chainId = Number(network.chainId);
@@ -111,7 +109,7 @@ async function runE2EDemo() {
         // Verify contract is deployed (allow for deployment timing)
         let code = await provider.getCode(CONTRACT_ADDRESS);
         let actualContractAddress = CONTRACT_ADDRESS;
-        
+
         if (!code || code === "0x" || code.length <= 2) {
             // Contract might not be deployed yet - try deploying if on local network
             if (config.networkName === "local") {
@@ -126,15 +124,15 @@ async function runE2EDemo() {
                 await deployedContract.waitForDeployment();
                 actualContractAddress = await deployedContract.getAddress();
                 logger.info("Contract deployed", { address: actualContractAddress });
-                
+
                 // Wait a bit and verify code exists
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 code = await provider.getCode(actualContractAddress);
-                
+
                 if (!code || code === "0x" || code.length <= 2) {
                     throw new Error(`Contract deployed but no code found at ${actualContractAddress}`);
                 }
-                
+
                 // Update contract reference if address changed
                 if (actualContractAddress.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) {
                     logger.warn("Deployed contract address differs from artifact", {
@@ -180,7 +178,7 @@ async function runE2EDemo() {
                 logsLength: txResponse.logs ? txResponse.logs.length : 0,
                 status: txResponse.status
             });
-            
+
             if (!txResponse.logs || txResponse.logs.length === 0) {
                 throw new Error("Transaction succeeded but no events were emitted");
             }
@@ -204,7 +202,7 @@ async function runE2EDemo() {
                 // Not a FileUploaded event, continue
             }
         }
-        
+
         if (fileUploadedEvent) {
             logger.info("FileUploaded event decoded", {
                 fileHash: fileUploadedEvent.args[0],
@@ -253,17 +251,17 @@ async function runE2EDemo() {
         const mapping = {};
         mapping[fileHash] = ipfsHash;
         fs.writeFileSync(tempMappingFile, JSON.stringify(mapping, null, 2));
-        
+
         // Set environment variable BEFORE requiring the download function
         // This ensures the mapping is loaded when the module initializes
         const originalMappingFile = process.env.IPFS_MAPPING_FILE;
         process.env.IPFS_MAPPING_FILE = tempMappingFile;
-        
+
         // Reload the index module to pick up the mapping file
         delete require.cache[require.resolve("../src/index")];
         // Re-require downloadFileFromBlockchain after setting the env var
         const { downloadFileFromBlockchain: downloadFn } = require("../src/index");
-        
+
         const outputDir = path.join(__dirname, "../data/temp");
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
@@ -284,12 +282,12 @@ async function runE2EDemo() {
             CONTRACT_ADDRESS,
             outputPath
         );
-        
+
         // Clean up temp mapping file
         if (fs.existsSync(tempMappingFile)) {
             fs.unlinkSync(tempMappingFile);
         }
-        
+
         // Restore original env var if it existed
         if (originalMappingFile) {
             process.env.IPFS_MAPPING_FILE = originalMappingFile;
