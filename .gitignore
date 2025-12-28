@@ -66,9 +66,8 @@ coverage.json
 *~
 *.bak
 
-# Deployment artifacts temp files (artifacts themselves are tracked)
-deployments/*.tmp
-deployments/*.temp
+# Deployment artifacts (generated locally, network-specific)
+deployments/
 
 # Hardhat Ignition
 ignition/
