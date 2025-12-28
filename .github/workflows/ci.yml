@@ -150,3 +150,66 @@ jobs:
           path: artifacts/
           retention-days: 30
 
+  notify-on-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [hygiene, lint, test, security, build]
+    if: failure() && github.event_name == 'schedule'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Create failure summary
+        run: |
+          echo "## Nightly CI Run Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Failed Jobs:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Check workflow run for details" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This scheduled run failed, indicating possible upstream dependency or runner environment changes." >> $GITHUB_STEP_SUMMARY
+      
+      - name: Send Slack notification (if configured)
+        if: env.SLACK_WEBHOOK_URL != ''
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"🚨 Nightly CI Run Failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+            "$SLACK_WEBHOOK_URL"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      
+      - name: Send Discord notification (if configured)
+        if: env.DISCORD_WEBHOOK_URL != ''
+        run: |
+          curl -X POST -H 'Content-Type: application/json' \
+            --data "{\"content\":\"🚨 Nightly CI Run Failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+            "$DISCORD_WEBHOOK_URL"
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      
+      - name: Create GitHub issue (if configured)
+        if: env.CREATE_ISSUE == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Nightly CI Run Failed - ${new Date().toISOString().split('T')[0]}`,
+              body: `## Nightly CI Run Failed
+              
+              **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              **Commit:** ${{ github.sha }}
+              **Scheduled Run:** ${{ github.event.schedule }}
+              
+              This scheduled run failed, indicating possible upstream dependency or runner environment changes.
+              
+              Check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.`,
+              labels: ['ci-failure', 'nightly-run']
+            })
+        env:
+          CREATE_ISSUE: ${{ secrets.CREATE_ISSUE_ON_NIGHTLY_FAILURE || 'false' }}
+
